@@ -116,14 +116,32 @@ export default {
       ].includes(event.keyCode)) {
         this.input.blur()
       }
+      if (!(event.keyCode == 65 || event.keyCode == 17) && validationDatePattern(this.input.value)) {
+          this.input.value = this.input.value.replaceAll("-", "");
+          if (this.typeable) {
+            // backspace
+            if (![8].includes(event.keyCode)) {
+              if (this.input.value && (this.input.value.length == 5 || this.input.value.length == 6)) {
+                var temp = this.input.value.split("-").join("");
+                this.input.value = temp.substring(0, 4) + "-" + temp.substring(4, 6);
+              } else if (this.input.value.length >= 8) {
+                var temp = this.input.value.split("-").join("");
+                this.input.value = temp.substring(0, 4) + "-" + temp.substring(4, 6) + "-" + temp.substring(6, 8);
+              }
+            }
+            this.input.value = this.input.value.replaceAll("--", "-");
+            //****날짜 선택 관련 수정 필요 @key
+            if (this.input.value.length == this.format.length) {
+              this.input.value = this.input.value.substring(0, this.format.length);
+              var typedDate = Date.parse(this.input.value);
+              if (!isNaN(typedDate)) {
+                this.typedDate = this.input.value;
 
-      if (this.typeable) {
-        const typedDate = Date.parse(this.input.value)
-        if (!isNaN(typedDate)) {
-          this.typedDate = this.input.value
-          this.$emit('typedDate', new Date(this.typedDate))
+                this.$emit("typedDate", new Date(this.typedDate));
+              }
+            }
+          }
         }
-      }
     },
     /**
      * nullify the typed date to defer to regular formatting
